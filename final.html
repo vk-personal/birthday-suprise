@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Final Letter 💌</title>
+
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 18% 18%, rgba(255, 120, 200, .35), transparent 55%),
+      radial-gradient(circle at 82% 30%, rgba(120, 220, 255, .28), transparent 55%),
+      radial-gradient(circle at 60% 85%, rgba(255, 210, 110, .25), transparent 55%),
+      linear-gradient(135deg,#ff9ad5,#9ad9ff);
+  }
+
+  /* floating emoji background (behind everything) */
+  .emojis{
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:0;
+    overflow:hidden;
+  }
+  .emoji{
+    position:absolute;
+    opacity:.35;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.10));
+    animation: floatUp linear infinite;
+    will-change: transform, opacity;
+  }
+  @keyframes floatUp{
+    0%{ transform: translate3d(0, 110vh, 0) rotate(0deg) scale(.95); opacity:0; }
+    10%{ opacity:.45; }
+    70%{ opacity:.38; }
+    100%{ transform: translate3d(0, -20vh, 0) rotate(360deg) scale(1.08); opacity:0; }
+  }
+
+  /* passcode overlay */
+  #gate{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    padding:18px;
+    background: rgba(0,0,0,.42);
+    backdrop-filter: blur(10px);
+    z-index:10;
+  }
+  .gateCard{
+    width:min(92vw, 560px);
+    border-radius:26px;
+    padding:22px 20px 18px;
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(255,255,255,.65);
+    box-shadow: 0 30px 90px rgba(0,0,0,.35);
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .gateCard::before{
+    content:"";
+    position:absolute; inset:-80px;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255, 95, 162, .25), transparent 45%),
+      radial-gradient(circle at 80% 30%, rgba(124, 58, 237, .18), transparent 45%),
+      radial-gradient(circle at 50% 90%, rgba(120, 220, 255, .18), transparent 45%);
+    filter: blur(12px);
+    z-index:0;
+  }
+  .gateInner{ position:relative; z-index:1; }
+  .gateTitle{
+    margin:2px 0 10px;
+    font-size:22px;
+    font-weight:950;
+    color:#4b0033;
+  }
+  .gateSub{
+    margin:0 0 14px;
+    font-size:14px;
+    font-weight:750;
+    color: rgba(75,0,51,.72);
+  }
+
+  /* 6-digit passcode boxes */
+  .otp{display:flex;gap:12px;justify-content:center;margin:10px 0 6px}
+  .otp .d{
+    width:52px;height:58px;
+    border-radius:14px;
+    border:1px solid rgba(0,0,0,.10);
+    background:rgba(255,255,255,.94);
+    box-shadow:0 14px 34px rgba(0,0,0,.12);
+    text-align:center;
+    font-size:20px;
+    font-weight:950;
+    outline:none;
+    color:#4b0033;
+  }
+  .otp .d:focus{
+    border-color: rgba(255,95,162,.65);
+    box-shadow:0 18px 44px rgba(255,95,162,.18);
+  }
+  @media (max-width:520px){
+    .otp{gap:10px}
+    .otp .d{width:44px;height:54px}
+  }
+
+  .unlockBtn{
+    margin-top:12px;
+    border:0;
+    border-radius:999px;
+    padding:12px 22px;
+    font-weight:950;
+    cursor:pointer;
+    color:#fff;
+    background: linear-gradient(135deg,#ff3b9d,#7c3aed);
+    box-shadow:0 18px 50px rgba(255,59,157,.20);
+    transition: transform .12s ease, box-shadow .12s ease;
+    min-width: 210px;
+  }
+  .unlockBtn:hover{ transform: translateY(-1px); box-shadow:0 22px 62px rgba(255,59,157,.24); }
+  .unlockBtn:active{ transform: translateY(1px) scale(.99); }
+
+  #err{
+    margin:10px 0 0;
+    min-height:18px;
+    font-size:13px;
+    font-weight:800;
+    color:#c1004d;
+  }
+
+  /* main content (vertical scroll, hide scrollbar) */
+  #content{
+    position:relative;
+    z-index:1;
+    height:100%;
+    display:none;
+    overflow-y:auto;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+    padding:22px;
+  }
+  #content::-webkit-scrollbar{width:0;height:0}
+
+  .paper{
+    width:min(920px, 100%);
+    margin: 22px auto 60px;
+    background: rgba(255,255,255,.88);
+    border:1px solid rgba(255,255,255,.60);
+    border-radius:30px;
+    box-shadow:0 24px 70px rgba(0,0,0,.25);
+    backdrop-filter: blur(10px);
+    overflow:hidden;
+    position:relative;
+  }
+  .paper::before{
+    content:"";
+    position:absolute; inset:-2px;
+    background:
+      radial-gradient(900px 260px at 18% 0%, rgba(255,90,165,.18), transparent 60%),
+      radial-gradient(900px 260px at 85% 100%, rgba(120,220,255,.16), transparent 60%);
+    pointer-events:none;
+  }
+  .pad{
+    position:relative;
+    padding:34px 26px 28px;
+  }
+
+  .header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-bottom: 10px;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 14px;
+    border-radius:999px;
+    background: rgba(255,255,255,.55);
+    border:1px solid rgba(0,0,0,.06);
+    font-weight:900;
+    color:#6a004a;
+  }
+
+.footerRow{margin-top:10px;display:flex;align-items:center;gap:12px;width:100%; }
+
+.footerHint{flex:1}
+
+.nextBtn{
+  margin-left:auto;
+  border:1px solid rgba(255,255,255,.40);
+  background: rgba(255,255,255,.18);
+  color:#7a0050;
+  padding:10px 16px;
+  border-radius:999px;
+  font-weight:950;
+  cursor:pointer;
+  white-space:nowrap;
+  box-shadow:0 12px 30px rgba(0,0,0,.18), inset 0 0 12px rgba(255,255,255,.18);
+  transition: transform .2s ease, background .2s ease;
+}
+
+.nextBtn:hover{transform: translateX(3px) scale(1.04); background: rgba(255,255,255,.30);}
+
+.nextBtn:active{transform: scale(.96);}
+
+
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(47,228,255,.55); }
+    70%{ box-shadow:0 0 0 16px rgba(47,228,255,0); }
+    100%{ box-shadow:0 0 0 0 rgba(47,228,255,0); }
+  }
+
+  h1{
+    margin:0 0 10px;
+    font-size: clamp(30px, 4vw, 52px);
+    line-height:1.05;
+    color:#7a0050;
+    font-weight: 950;
+    letter-spacing:.2px;
+    text-shadow: 0 14px 40px rgba(255,90,165,.12);
+  }
+
+  .subtitle{
+    margin:0 0 14px;
+    font-size: 15px;
+    font-weight:800;
+    color: rgba(75,0,51,.70);
+  }
+
+  .letter{
+    margin-top: 10px;
+    font-size: clamp(15px, 2.0vw, 18px);
+    line-height: 1.8;
+    color:#3d0030;
+    font-weight: 650;
+    white-space: pre-wrap;
+  }
+
+  .sig{
+    margin-top: 26px;
+    font-weight: 950;
+    color:#7a0050;
+    font-size: 18px;
+  }
+
+  .footerHint{
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 750;
+    color: rgba(75,0,51,.58);
+  }
+</style>
+</head>
+
+<body>
+  <div class="emojis" id="emojis"></div>
+
+  <!-- PASSCODE GATE -->
+  <div id="gate">
+    <div class="gateCard">
+      <div class="gateInner">
+        <div class="gateTitle">Enter Passcode 💖</div>
+        <div class="gateSub">Only then the surprise opens ✨</div>
+
+        <div class="otp" id="otp">
+          <input class="d" inputmode="numeric" maxlength="1" aria-label="digit 1" />
+          <input class="d" inputmode="numeric" maxlength="1" aria-label="digit 2" />
+          <input class="d" inputmode="numeric" maxlength="1" aria-label="digit 3" />
+          <input class="d" inputmode="numeric" maxlength="1" aria-label="digit 4" />
+          <input class="d" inputmode="numeric" maxlength="1" aria-label="digit 5" />
+          <input class="d" inputmode="numeric" maxlength="1" aria-label="digit 6" />
+        </div>
+
+        <button class="unlockBtn" id="unlockBtn" type="button">Unlock ✨</button>
+        <div id="err"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="content">
+    <div class="paper">
+      <div class="pad">
+        <div class="header">
+          <div>
+            <h1>My Letter To You 💌</h1>
+          </div>
+        </div>
+
+        <div class="letter" id="letterText">
+Hi Patootie❤️
+
+Happy Birthday Papa 💖
+I hope ithan namma thani thaniya celeb panra last bday🥺. From next bday i will be beside you🤗 with hugs & kisses😘
+Nee kutty ponna irukum pothu la irunthe enaku unna pidikum, but namma lovers aavom expect panave ila🙈
+I need u for the rest of my life, u have done many things for me, so much of overwhelming loveee, careee & knjm kiruku thanam🤪(u can call it possasive)
+& so much of sacrifices, sometimes i felt like i m not worth for these. I know i hurted u few times sorry for that(unga v2 pillaya ninachi manichidu)
+
+I promise u we will have a great time & life together🥰(with many babies)
+Our bad phase will end soon😮‍💨🤞
+
+I will love you more the way u luv me😍(this is not proposal)
+
+
+Soon we are going to marry & we will be together🥳
+(ithalam padikum pothu un kannu kalangi irukum intha 🤧🧻 thodachiko)
+
+naan unna verupethitu than irupen 😘
+konjam kovam vara maathiri,
+romba miss panna maathiri 😌🤍
+hugs la escape illa 🤗
+kisses la permission kooda illa 😜
+Neraya dodo pananum sekeram vaaaa🙈
+
+I m very lucky & proud to be your bf/love/etc...
+You are my rare gem, carefully gifted by the universe,just for me… in this not-so-perfect generation 🤍✨
+
+
+Thank u for choosing me every single day, even on the hardest ones 🫶
+You are my comfort, my strength, my safe place, my forever 💫
+
+No matter what happens,
+naan un kooda than irupen… always & forever ♾️❤️
+Once again, Happy Birthday my Girl, my heart, my future 🤍🎂
+
+I ❤️ U
+
+✨💖🌸
+        </div>
+
+        <div class="sig">— Yours Always<br>Kunjoozz 💕</div>
+      <div class="footerRow">
+  <div class="footerHint">(Wait Wait... Next oru kutty horror iruku, Brace yourself)</div>
+  <button class="nextBtn" type="button" onclick="goNext()">Next ➜</button>
+</div>
+    </div>
+  </div>
+
+  <!-- MUSIC -->
+  <audio id="bgm" src="music2.mp3" preload="auto" loop></audio>
+
+<script>
+  // ====== CONFIG ======
+  const SECRET = "020115"; // <-- set your 6-digit passcode here
+
+  // ====== EMOJI BACKGROUND ======
+  const emojiLayer = document.getElementById("emojis");
+const emojis = ["💖","💗","💕","💘","✨","🌸","🦋","🫶🏻🥹❤️‍🩹","🫠🤌🏻💗","🪬💙🧿🩵","🤌🏻😩❤️‍🩹","🦋🥺🤍🧸١٥٧٤♡","❤️‍🔥🫶🏻😮‍💨","🫶❤️‍🩹🫣🙈😘","🫶🏼🫴🏻❤‍🩹🥰"];
+  function spawnEmoji(){
+    const e = document.createElement("div");
+    e.className = "emoji";
+    e.textContent = emojiSet[Math.floor(Math.random() * emojiSet.length)];
+    e.style.left = (Math.random() * 100) + "vw";
+    e.style.fontSize = (16 + Math.random() * 22) + "px";
+    e.style.animationDuration = (6 + Math.random() * 7) + "s";
+    e.style.opacity = (0.22 + Math.random() * 0.22).toFixed(2);
+    emojiLayer.appendChild(e);
+    setTimeout(()=>e.remove(), 14000);
+  }
+  setInterval(spawnEmoji, 320);
+  for(let i=0;i<18;i++) setTimeout(spawnEmoji, i*140);
+
+  // ====== 6-DIGIT PASSCODE UI ======
+  const otpWrap = document.getElementById("otp");
+  const inputs = Array.from(otpWrap.querySelectorAll(".d"));
+  const err = document.getElementById("err");
+  const unlockBtn = document.getElementById("unlockBtn");
+
+  const gate = document.getElementById("gate");
+  const content = document.getElementById("content");
+  const audioEl = document.getElementById("bgm");
+
+  function getCode(){ return inputs.map(i => i.value).join(""); }
+  function setCode(code){
+    for(let i=0;i<inputs.length;i++) inputs[i].value = code[i] || "";
+  }
+
+  function showError(msg){
+    err.textContent = msg || "";
+  }
+
+  function clearBoxes(){
+    inputs.forEach(i => i.value = "");
+    inputs[0].focus();
+  }
+
+  function unlock(){
+    const code = getCode();
+    if(code.length !== 6) return;
+
+    if(code === SECRET){
+      gate.style.display = "none";
+      content.style.display = "block";
+
+      // play music after successful passcode (user gesture already happened)
+      audioEl.play().catch(()=>{});
+    }else{
+      showError("Wrong passcode 💔");
+      clearBoxes();
+    }
+  }
+
+  inputs.forEach((input, idx) => {
+    input.addEventListener("input", () => {
+      showError("");
+      input.value = (input.value || "").replace(/\D/g,"").slice(0,1);
+      if(input.value && idx < inputs.length - 1) inputs[idx + 1].focus();
+      if(getCode().length === 6) unlock();
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if(e.key === "Backspace"){
+        if(!input.value && idx > 0){
+          inputs[idx - 1].focus();
+          inputs[idx - 1].value = "";
+        }
+        return;
+      }
+      if(e.key === "ArrowLeft" && idx > 0) inputs[idx - 1].focus();
+      if(e.key === "ArrowRight" && idx < inputs.length - 1) inputs[idx + 1].focus();
+      if(e.key === "Enter") unlock();
+    });
+
+    input.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData("text") || "";
+      const digits = text.replace(/\D/g,"").slice(0,6);
+      if(!digits) return;
+      setCode(digits);
+      inputs[Math.min(digits.length, 6) - 1].focus();
+      if(digits.length === 6) unlock();
+    });
+  });
+
+  unlockBtn.addEventListener("click", unlock);
+  setTimeout(()=>inputs[0].focus(), 0);
+
+// Redirect to video page
+function goNext(){
+window.location.href = "video.html";
+}
+</script>
+</body>
+</html>
