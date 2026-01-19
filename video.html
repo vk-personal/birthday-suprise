@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Video Surprise 🎥</title>
+
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 18% 18%, rgba(255, 120, 200, .35), transparent 55%),
+      radial-gradient(circle at 82% 30%, rgba(120, 220, 255, .28), transparent 55%),
+      radial-gradient(circle at 60% 85%, rgba(255, 210, 110, .25), transparent 55%),
+      linear-gradient(135deg,#ff9ad5,#9ad9ff);
+  }
+
+  /* floating emojis */
+  .emojis{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .emoji{
+    position:absolute;opacity:.32;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.10));
+    animation: floatUp linear infinite;
+    will-change: transform, opacity;
+  }
+  @keyframes floatUp{
+    0%{transform:translate3d(0,110vh,0) rotate(0deg) scale(.95);opacity:0}
+    10%{opacity:.45}
+    70%{opacity:.35}
+    100%{transform:translate3d(0,-20vh,0) rotate(360deg) scale(1.06);opacity:0}
+  }
+
+  /* layout */
+  .wrap{
+    position:relative;
+    z-index:1;
+    height:100%;
+    display:grid;
+    place-items:center;
+    padding:18px;
+  }
+
+  .card{
+    width:min(800px, 100%);
+    height:min(720px, 92vh);
+    border-radius:28px;
+    background: rgba(255,255,255,.86);
+    border:1px solid rgba(255,255,255,.65);
+    box-shadow:0 26px 90px rgba(0,0,0,.30);
+    overflow:hidden;
+    position:relative;
+    backdrop-filter: blur(10px);
+  }
+  .card::before{
+    content:"";
+    position:absolute; inset:-2px;
+    background:
+      radial-gradient(900px 260px at 18% 0%, rgba(255,90,165,.18), transparent 60%),
+      radial-gradient(900px 260px at 85% 100%, rgba(120,220,255,.16), transparent 60%);
+    pointer-events:none;
+  }
+
+  .top{
+    position:relative;
+    padding:18px 18px 10px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .title{
+    margin:0;
+    font-size: clamp(22px, 3.2vw, 40px);
+    font-weight:950;
+    color:#7a0050;
+    letter-spacing:.2px;
+    text-shadow: 0 14px 40px rgba(255,90,165,.10);
+  }
+
+  .stage{
+    position:relative;
+    padding:10px 18px 18px;
+    height: calc(100% - 86px);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    min-height:0;
+  }
+
+  /* video frame */
+  .frame{
+    position:relative;           /* ✅ needed for z-index layering */
+    flex: 1;
+    min-height:0;
+    border-radius:26px;
+    background: rgba(0,0,0,.14);
+    border:1px solid rgba(0,0,0,.08);
+    box-shadow: inset 0 0 0 6px rgba(255,255,255,.25), 0 18px 60px rgba(0,0,0,.18);
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* ✅ keep your dots design but move it BEHIND the player (no overlay on video) */
+  .frame::after{
+    content:"";
+    position:absolute; inset:-40%;
+    background:
+      radial-gradient(circle, rgba(255,255,255,.55) 0 2px, transparent 3px) 0 0/22px 22px,
+      radial-gradient(circle, rgba(255,255,255,.35) 0 1.5px, transparent 3px) 10px 10px/26px 26px;
+    opacity:.20;
+    transform: rotate(18deg);
+    pointer-events:none;
+    mix-blend-mode: overlay;
+
+    z-index:0;                   /* ✅ behind */
+  }
+
+  /* ✅ YouTube container above dots */
+  #ytWrap{
+    position:relative;
+    z-index:1;                   /* ✅ above */
+    width:100%;
+    height:100%;
+    background:#000;
+  }
+  #ytplayer{
+    width:100%;
+    height:100%;
+    border:0;
+
+    pointer-events:none;         /* ✅ prevents YouTube overlays/buttons on click */
+  }
+
+  /* custom controls */
+  .controls{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 14px;
+    border-radius:18px;
+    background: rgba(255,255,255,.62);
+    border:1px solid rgba(0,0,0,.06);
+    box-shadow: 0 12px 30px rgba(0,0,0,.10);
+  }
+
+  .btn{
+    border:0;
+    border-radius:999px;
+    padding:10px 14px;
+    font-weight:950;
+    cursor:pointer;
+    color:#fff;
+    background: linear-gradient(135deg,#ff3b9d,#7c3aed);
+    box-shadow:0 16px 40px rgba(255,59,157,.18);
+    transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{transform: translateY(-1px); filter: brightness(1.05);}
+  .btn:active{transform: translateY(1px) scale(.99);}
+
+  .bar{
+    flex:1;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width: 120px;
+  }
+
+  input[type="range"]{
+    width:100%;
+    accent-color:#ff3b9d;
+    cursor:pointer;
+  }
+
+  @media (max-width:560px){
+    .controls{flex-wrap:wrap}
+  }
+</style>
+</head>
+
+<body>
+  <div class="emojis" id="emojis"></div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div>
+          <h1 class="title">A Small Dedication For You 🎶💖</h1>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="frame">
+          <!-- YouTube embed area -->
+          <div id="ytWrap">
+            <div id="ytplayer"></div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn" id="playBtn" type="button">Play ▶</button>
+          <div class="bar">
+            <input id="seek" type="range" min="0" max="100" value="0" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+<!-- YouTube Iframe API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+  // ===== Emoji background =====
+  const emojiLayer = document.getElementById("emojis");
+  const emojiSet = ["💖","💗","💕","💘","✨","🌸","🦋","🎀","🥰","🍓","🫶","🤍","😮‍💨","😘"];
+
+  function spawnEmoji(){
+    const e = document.createElement("div");
+    e.className = "emoji";
+    e.textContent = emojiSet[Math.floor(Math.random() * emojiSet.length)];
+    e.style.left = (Math.random() * 100) + "vw";
+    e.style.fontSize = (16 + Math.random() * 22) + "px";
+    e.style.animationDuration = (6 + Math.random() * 7) + "s";
+    e.style.opacity = (0.20 + Math.random() * 0.25).toFixed(2);
+    emojiLayer.appendChild(e);
+    setTimeout(()=>e.remove(), 14000);
+  }
+  setInterval(spawnEmoji, 320);
+  for(let i=0;i<18;i++) setTimeout(spawnEmoji, i*140);
+
+  // ===== YouTube controls (your UI stays) =====
+  const playBtn = document.getElementById("playBtn");
+  const seek = document.getElementById("seek");
+
+  // Your YouTube video ID
+  const YT_VIDEO_ID = "OeABtWug29E";
+
+  let player;
+  let duration = 0;
+  let seekDragging = false;
+
+  function setBtn(){
+    if(!player) return;
+    const state = player.getPlayerState();
+    const isPlaying = state === 1; // PLAYING
+    playBtn.textContent = isPlaying ? "Pause ⏸" : "Play ▶";
+  }
+
+  function forceHd1080(){
+    // Not guaranteed: depends on video availability + bandwidth/device
+    try {
+      player.setPlaybackQuality("hd1080");
+      player.setPlaybackQualityRange("hd1080");
+    } catch(e) {}
+  }
+
+  function turnOffCaptions(){
+    // Strong attempts to keep captions off (not 100% guaranteed across all accounts)
+    try { player.unloadModule("captions"); } catch(e) {}
+    try { player.setOption("captions", "track", {}); } catch(e) {}
+  }
+
+  function onYouTubeIframeAPIReady(){
+    player = new YT.Player("ytplayer", {
+      videoId: YT_VIDEO_ID,
+      playerVars: {
+        // Hide YouTube UI as much as YouTube allows
+        controls: 0,          // no bottom bar
+        fs: 0,                // no fullscreen button
+        disablekb: 1,         // no keyboard controls
+        modestbranding: 1,    // minimal branding
+        rel: 0,               // no related videos at end (best effort)
+        iv_load_policy: 3,    // hide annotations/overlays
+        playsinline: 1,       // iOS inline
+        cc_load_policy: 0     // captions off by default
+      },
+      events: {
+        onReady: () => {
+          duration = player.getDuration() || 0;
+
+          // Try to force 1080p (if available)
+          forceHd1080();
+
+          // Turn off captions
+          turnOffCaptions();
+
+          setBtn();
+        },
+        onStateChange: (e) => {
+          setBtn();
+
+          // When playback starts, force HD again (more reliable)
+          if (e.data === 1) {
+            forceHd1080();
+            turnOffCaptions();
+          }
+        }
+      }
+    });
+  }
+
+  playBtn.addEventListener("click", () => {
+    if(!player) return;
+    const state = player.getPlayerState();
+    if(state === 1) player.pauseVideo();
+    else player.playVideo();
+    setBtn();
+  });
+
+  // Update seek bar
+  setInterval(() => {
+    if(!player || seekDragging) return;
+    duration = player.getDuration() || duration;
+    if(!duration) return;
+    const current = player.getCurrentTime() || 0;
+    seek.value = String((current / duration) * 100);
+  }, 300);
+
+  seek.addEventListener("input", () => {
+    seekDragging = true;
+  });
+
+  seek.addEventListener("change", () => {
+    if(!player) return;
+    duration = player.getDuration() || duration;
+    if(!duration) return;
+    const t = (Number(seek.value)/100) * duration;
+    player.seekTo(t, true);
+    seekDragging = false;
+  });
+</script>
+</body>
+</html>
+
+  /* floating emoj*/
+

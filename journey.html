@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Our Journey ✨</title>
+  <style>
+    :root{
+      --bgA:#ff4d9a;
+      --bgB:#7a5cff;
+      --bgC:#2fe4ff;
+      --bgD:#ffd166;
+      --shadow: 0 24px 80px rgba(0,0,0,.25);
+      --radius: 26px;
+      --ease: cubic-bezier(.2,.85,.2,1);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:#fff;
+      overflow:hidden;
+      background:
+        radial-gradient(900px 700px at 15% 15%, rgba(255,77,154,.55), transparent 60%),
+        radial-gradient(900px 700px at 85% 20%, rgba(47,228,255,.50), transparent 55%),
+        radial-gradient(1000px 800px at 70% 90%, rgba(255,209,102,.45), transparent 55%),
+        radial-gradient(1100px 900px at 15% 85%, rgba(122,92,255,.55), transparent 60%),
+        linear-gradient(135deg, #120023, #0b0b1a 60%, #070716);
+    }
+
+    /* floating background blobs */
+    .blob{
+      position:absolute;
+      width:420px; height:420px;
+      border-radius:999px;
+      opacity:.55;
+      mix-blend-mode: screen;
+      animation: blobFloat 10s ease-in-out infinite;
+      pointer-events:none;
+      filter: blur(1px);
+    }
+    .b1{ left:-120px; top:-120px; background: radial-gradient(circle at 30% 30%, #ff4d9a, transparent 62%), radial-gradient(circle at 65% 70%, #7a5cff, transparent 60%); }
+    .b2{ right:-160px; top:40px; background: radial-gradient(circle at 30% 30%, #2fe4ff, transparent 62%), radial-gradient(circle at 65% 70%, #ffd166, transparent 60%); animation-delay:-2s;}
+    .b3{ left:80px; bottom:-200px; width:520px; height:520px; background: radial-gradient(circle at 30% 30%, #ffd166, transparent 60%), radial-gradient(circle at 70% 70%, #ff4d9a, transparent 62%); animation-delay:-4s;}
+    @keyframes blobFloat{
+      0%,100%{ transform: translate(0,0) scale(1); }
+      50%{ transform: translate(20px,-18px) scale(1.04); }
+    }
+
+    .stage{
+      position:relative;
+      width:100vw;
+      height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+
+    .deck{
+      position:relative;
+      width:min(1120px, 96vw);
+      height:min(640px, 92vh);
+      border-radius: 34px;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      border:1px solid rgba(255,255,255,.18);
+      background: linear-gradient(135deg, rgba(255,255,255,.13), rgba(255,255,255,.06));
+      backdrop-filter: blur(14px);
+z-index:10; 
+    }
+
+    /* Snow layer */
+    .snowLayer{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:5;
+    }
+    .flake{
+      position:absolute;
+      top:-12px;
+      width:6px; height:6px;
+      border-radius:50%;
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 0 10px rgba(255,255,255,.55);
+      opacity:.85;
+      filter: blur(.1px);
+      animation: fall linear infinite;
+    }
+    @keyframes fall{
+      from{ transform: translate3d(var(--xStart), -20px, 0); }
+      to  { transform: translate3d(var(--xEnd), 720px, 0); }
+    }
+
+    /* subtle glitter particles */
+    .spark{
+      position:absolute;
+      width:6px; height:6px;
+      border-radius:50%;
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 0 18px rgba(255,255,255,.55);
+      opacity:.65;
+      animation: spark 5s linear infinite;
+      pointer-events:none;
+      z-index:4;
+    }
+    @keyframes spark{
+      0%{ transform: translateY(30px) scale(.6); opacity:0; }
+      15%{ opacity:.7; }
+      100%{ transform: translateY(-720px) scale(1); opacity:0; }
+    }
+
+    /* Slides */
+    .slide{
+      position:absolute; inset:0;
+      padding:34px;
+      display:grid;
+      grid-template-columns: 1.12fr .88fr;
+      gap:22px;
+      opacity:0;
+      pointer-events:none;
+      transform: scale(.985);
+      transition: opacity 420ms var(--ease), transform 420ms var(--ease);
+      z-index:2;
+    }
+    .slide.active{ opacity:1; pointer-events:auto; transform: scale(1); }
+
+    /* Collage */
+    .collage{
+      position:relative;
+      border-radius: var(--radius);
+      border:1px solid rgba(255,255,255,.22);
+      background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+      overflow:hidden;
+    }
+
+    .photo{
+      position:absolute;
+      border-radius: 26px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 20px 55px rgba(0,0,0,.35);
+      opacity:0;
+      will-change: transform, opacity;
+    }
+    .photo img{
+      width:100%; height:100%;
+      object-fit:cover;
+      display:block;
+      filter: saturate(1.08) contrast(1.06);
+      transform: scale(1.02);
+      animation: ken 12s ease-in-out infinite;
+    }
+    @keyframes ken{
+      0%,100%{ transform: scale(1.02); }
+      50%{ transform: scale(1.08); }
+    }
+
+    /* Text panel */
+    .copy{
+      position:relative;
+      border-radius: var(--radius);
+      border:1px solid rgba(255,255,255,.22);
+      background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      padding:22px 22px 18px;
+      overflow:hidden;
+    }
+    .year{
+      font-size: clamp(34px, 4vw, 56px);
+      font-weight: 900;
+      letter-spacing:.5px;
+      margin: 0 0 10px;
+      opacity:0;
+      transform: translateY(16px);
+      text-shadow: 0 12px 30px rgba(0,0,0,.25);
+    }
+    .title{
+      font-size: 18px;
+      font-weight:800;
+      margin:0 0 10px;
+      color: rgba(255,255,255,.88);
+      opacity:0;
+      transform: translateY(16px);
+    }
+    .quote{
+      font-size: clamp(18px, 2.2vw, 23px);
+      line-height: 1.6;
+      margin: 10px 0 0;
+      font-style: italic;
+      color: rgba(255,255,255,.95);
+      opacity:0;
+      transform: translateY(16px);
+    }
+    .dialogue{
+      margin-top:16px;
+      padding:14px 14px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.16);
+      color: rgba(255,255,255,.92);
+      font-size: 15px;
+      line-height:1.45;
+      opacity:0;
+      transform: translateY(16px);
+    }
+    .dialogue b{ color:#fff; }
+
+    /* slide animation presets */
+    .slide.play .year{ animation: rise 820ms var(--ease) forwards; }
+    .slide.play .title{ animation: rise 820ms var(--ease) 120ms forwards; }
+    .slide.play .quote{ animation: rise 820ms var(--ease) 260ms forwards; }
+    .slide.play .dialogue{ animation: rise 820ms var(--ease) 420ms forwards; }
+    @keyframes rise{
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    /* Photo entrance */
+    .slide.play .photo.p1{ animation: flyInLeft 950ms var(--ease) 140ms forwards; }
+    .slide.play .photo.p2{ animation: flyInRight 950ms var(--ease) 260ms forwards; }
+    .slide.play .photo.p3{ animation: popSpin 980ms var(--ease) 380ms forwards; }
+    @keyframes flyInLeft{
+      0%{ opacity:0; transform: translateX(-60px) translateY(30px) rotate(-6deg) scale(.92); }
+      70%{ opacity:1; transform: translateX(6px) translateY(-2px) rotate(1deg) scale(1.02); }
+      100%{ opacity:1; transform: translateX(0) translateY(0) rotate(0) scale(1); }
+    }
+    @keyframes flyInRight{
+      0%{ opacity:0; transform: translateX(60px) translateY(30px) rotate(6deg) scale(.92); }
+      70%{ opacity:1; transform: translateX(-6px) translateY(-2px) rotate(-1deg) scale(1.02); }
+      100%{ opacity:1; transform: translateX(0) translateY(0) rotate(0) scale(1); }
+    }
+    @keyframes popSpin{
+      0%{ opacity:0; transform: translateY(40px) rotate(-10deg) scale(.75); }
+      70%{ opacity:1; transform: translateY(-6px) rotate(2deg) scale(1.04); }
+      100%{ opacity:1; transform: translateY(0) rotate(0) scale(1); }
+    }
+
+    /* drift */
+    .slide.active .photo{ animation: drift 5.5s ease-in-out infinite; }
+    .slide.active .photo.p2{ animation-delay:-1.2s; }
+    .slide.active .photo.p3{ animation-delay:-2.4s; }
+    @keyframes drift{
+      0%,100%{ transform: translateY(0) translateX(0); }
+      50%{ transform: translateY(-10px) translateX(6px); }
+    }
+    .slide.active.play .photo{ animation: none; }
+    .slide.active.play.entered .photo{ animation: drift 5.5s ease-in-out infinite; }
+    /* safety: ensure visible on active */
+    .slide.active .photo { opacity: 1 !important; }
+
+    /* Intro slide */
+    .introWrap{ grid-template-columns: 1fr; place-items:center; text-align:center; }
+    .introCard{
+      width:min(820px, 95%);
+      height:min(520px, 92%);
+      border-radius: 34px;
+      border:1px solid rgba(255,255,255,.24);
+      background: linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      position:relative;
+      overflow:hidden;
+      box-shadow: 0 22px 70px rgba(0,0,0,.35);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:26px;
+    }
+    .pin{
+      position:absolute; top:18px; right:30px;
+      width:16px; height:16px; border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #fff, #ffd166);
+      box-shadow: 0 12px 25px rgba(255,209,102,.35);
+    }
+    .ribbon{
+      position:absolute;
+      width:120%;
+      height:110px;
+      left:-10%;
+      top:40%;
+      transform: rotate(-8deg);
+      background: linear-gradient(90deg, rgba(255,77,154,.95), rgba(122,92,255,.95), rgba(47,228,255,.95));
+      opacity:.28;
+      filter: blur(.2px);
+    }
+    .note{
+      width:min(520px, 90%);
+      border-radius: 26px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.18);
+      padding:22px 18px;
+    }
+    .introTitle{
+      font-size: clamp(30px, 4vw, 48px);
+      font-weight: 950;
+      margin: 0 0 8px;
+    }
+    .introHint{
+      margin-top:14px;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.92);
+      font-weight:800;
+      font-size:13px;
+    }
+    .pulseDot{
+      width:10px;height:10px;border-radius:50%;
+      background: #2fe4ff;
+      box-shadow: 0 0 0 rgba(47,228,255,.6);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse{
+      0%{ box-shadow: 0 0 0 0 rgba(47,228,255,.6); }
+      70%{ box-shadow: 0 0 0 16px rgba(47,228,255,0); }
+      100%{ box-shadow: 0 0 0 0 rgba(47,228,255,0); }
+    }
+    .slide.play .introCard{ animation: introZoom 900ms var(--ease) forwards; }
+    @keyframes introZoom{
+      0%{ transform: scale(.92) rotate(-1deg); opacity:0; }
+      70%{ transform: scale(1.02) rotate(.4deg); opacity:1; }
+      100%{ transform: scale(1) rotate(0); opacity:1; }
+    }
+
+    /* HIDE UI */
+    .hud{ display:none !important; }
+
+    /* Mobile layout */
+    @media (max-width: 860px){
+      .slide{ grid-template-columns: 1fr; grid-template-rows: 1.05fr .95fr; }
+      .deck{ height:min(780px, 94vh); }
+    }
+
+    /* Audio gate */
+    .tapToEnableAudio{
+      position:absolute; inset:0;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding:16px;
+      z-index:40;
+      pointer-events:none;
+    }
+    .tapToEnableAudio.show{ display:flex; pointer-events:auto; }
+    .tapToEnableAudio button{
+      border:1px solid rgba(255,255,255,.25);
+      background: rgba(0,0,0,.35);
+      color:#fff;
+      padding:12px 16px;
+      border-radius:999px;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+    }
+
+    /* FINAL GALLERY SLIDE (single layer, bigger pics) */
+/* Gallery slide should stack grid + footer and fill full height */
+.galleryWrap{
+  grid-template-columns: 1fr;
+  padding: 10px !important;
+  display:flex !important;
+  flex-direction:column;
+  height:100%;
+}
+
+
+/* grid takes most of the space */
+.polaroidGrid{
+  width:100%;
+  height:calc(100% - 70px);  /* leave some room for footer text */
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap:18px;
+  padding:10px;
+  align-content:stretch;
+}
+
+/* Bigger tiles */
+.polaroid{
+  border-radius: 18px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 18px 45px rgba(0,0,0,.25);
+  overflow:hidden;
+  transform: rotate(var(--rot));
+  animation: floatPol 5.8s ease-in-out infinite;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Image area should be most of the tile */
+.polaroid .imgBox{
+  flex: 1;            /* <-- this is the key */
+  height:auto;        /* remove old 78% rule */
+  background:#d9d9d9;
+  overflow:hidden;
+}
+
+/* Caption stays small */
+.polaroid .caption{
+  height:24px;        /* fixed small caption */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#101015;
+  font-weight:900;
+  font-size:18px;
+}
+
+/* Footer layout: left text + far-right button */
+.galleryFooter{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;   /* pushes button to far right */
+  gap:14px;
+  padding: 0 18px;                 /* breathing space left/right */
+  height:56px;
+  position:relative;
+  z-index:20;
+}
+
+/* center text group */
+.footerCenter{
+  justify-self:center;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.footerLeft{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.footerText{
+  font-size:24px;      /* lil bit big */
+  font-weight:900;
+  letter-spacing:.3px;
+  color:#fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,.45);
+}
+
+.footerCenter .beatHeart{
+  font-size:26px;
+}
+
+/* Next button */
+.nextBtn{
+  border:1px solid rgba(255,255,255,.40);
+  background: rgba(255,255,255,.18);
+  color:#fff;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 16px;
+  cursor:pointer;
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,.35),
+    inset 0 0 12px rgba(255,255,255,.18);
+
+  transition: transform .25s ease, background .25s ease;
+}
+
+.nextBtn:hover{
+  transform: translateX(4px) scale(1.05);
+  background: rgba(255,255,255,.30);
+}
+
+.nextBtn:active{
+  transform: scale(.96);
+}
+
+
+.galleryBoard{ display:none; }  /* disable the inner layer completely */
+
+
+.galleryWrap.slide{
+  padding:14px !important;
+}
+    .polaroid img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      filter:saturate(1.05) contrast(1.03);
+    }
+
+
+    
+    .beatHeart{
+      display:inline-block;
+      transform-origin:center;
+      animation: beat 1.05s ease-in-out infinite;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,.25));
+    }
+    @keyframes beat{
+      0%,100%{ transform: scale(1); }
+      40%{ transform: scale(1.18); }
+      60%{ transform: scale(1.06); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="snowLayer" id="snowLayer"></div>
+
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+
+  <div class="stage">
+    <div class="deck" id="deck">
+
+      
+      <!-- sparkles -->
+      <div class="spark" style="left:8%; bottom:-10px; animation-delay:-.2s;"></div>
+      <div class="spark" style="left:18%; bottom:-30px; animation-delay:-1.2s;"></div>
+      <div class="spark" style="left:32%; bottom:-50px; animation-delay:-2.4s;"></div>
+      <div class="spark" style="left:48%; bottom:-20px; animation-delay:-.8s;"></div>
+      <div class="spark" style="left:63%; bottom:-40px; animation-delay:-1.8s;"></div>
+      <div class="spark" style="left:78%; bottom:-60px; animation-delay:-3s;"></div>
+      <div class="spark" style="left:90%; bottom:-25px; animation-delay:-2.1s;"></div>
+
+      <!-- Audio gate -->
+      <div class="tapToEnableAudio" id="audioGate" style="display:none">
+        <button id="enableAudioBtn">🔊 Tap once to enable music</button>
+      </div>
+
+      <!-- SLIDE 0: Intro -->
+      <section class="slide introWrap"
+               data-type="intro"
+               data-year=""
+               data-title=""
+               data-quote=""
+               data-dialogue="">
+        <div class="introCard">
+          <div class="pin"></div>
+          <div class="ribbon"></div>
+          <div class="note">
+            <div class="introTitle">A Message From My Heart 💌</div>
+            <div class="introHint"><span class="pulseDot"></span> Press here to begin</div>
+          </div>
+        </div>
+        <div style="display:none"></div>
+      </section>
+
+      <!-- Slide 1 (2 photos) -->
+      <section class="slide" data-year="2020" data-title="Where it all started"
+        data-quote="&ldquo;Some beginnings feel like destiny.&rdquo;"
+        data-dialogue="&lt;b&gt;You:&lt;/b&gt; First message?  &nbsp; &lt;b&gt;Me:&lt;/b&gt; Best decision 😄">
+        <div class="collage">
+          <div class="photo p1" style="left:18px; top:18px; width:56%; height:56%;">
+            <img src="image11.jpg" alt="image11" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p2" style="right:18px; bottom:18px; width:54%; height:54%;">
+            <img src="image12.jpg" alt="image12" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <div class="copy"></div>
+      </section>
+
+      <!-- Slide 2 (2 photos) -->
+      <section class="slide" data-year="2021" data-title="First memories"
+        data-quote="&ldquo;We didn’t know it then… but we were building a forever.&rdquo;"
+        data-dialogue="&lt;b&gt;You:&lt;/b&gt; One more photo?  &nbsp; &lt;b&gt;Me:&lt;/b&gt; Always 😘">
+        <div class="collage">
+          <div class="photo p1" style="left:20px; top:40px; width:52%; height:62%;">
+            <img src="image13.jpg" alt="image13" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p2" style="right:22px; top:18px; width:44%; height:44%;">
+            <img src="image14.jpg" alt="image14"loading="lazy" decoding="async">
+          </div>
+        </div>
+        <div class="copy"></div>
+      </section>
+
+      <!-- Slide 3 (2 photos) -->
+      <section class="slide" data-year="2022" data-title="Closer every day"
+        data-quote="&ldquo;In a world of chaos, you were my calm.&rdquo;"
+        data-dialogue="&lt;b&gt;You:&lt;/b&gt; Miss you.  &nbsp; &lt;b&gt;Me:&lt;/b&gt; More than words 🤍">
+        <div class="collage">
+          <div class="photo p1" style="left:22px; top:20px; width:60%; height:48%;">
+            <img src="image15.jpg" alt="image15" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p2" style="right:22px; bottom:20px; width:52%; height:56%;">
+            <img src="image16.jpg" alt="image16" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <div class="copy"></div>
+      </section>
+
+      <!-- Slide 4 (2 photos) -->
+      <section class="slide" data-year="2023" data-title="Our little adventures"
+        data-quote="&ldquo;Every place became special… because you were there.&rdquo;"
+        data-dialogue="&lt;b&gt;You:&lt;/b&gt; Same spot again?  &nbsp; &lt;b&gt;Me:&lt;/b&gt; New memories, same us 💫">
+        <div class="collage">
+          <div class="photo p1" style="left:20px; bottom:20px; width:54%; height:54%;">
+            <img src="image17.jpg" alt="image17" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p2" style="right:20px; top:20px; width:56%; height:56%;">
+            <img src="image18.jpg" alt="image18" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <div class="copy"></div>
+      </section>
+
+      <!-- Slide 5 (2 photos) -->
+      <section class="slide" data-year="2023" data-title="Stronger together"
+        data-quote="&ldquo;No matter what… we choose each other.&rdquo;"
+        data-dialogue="&lt;b&gt;You:&lt;/b&gt; Promise?  &nbsp; &lt;b&gt;Me:&lt;/b&gt; Always. Pinky promise 🫶">
+        <div class="collage">
+          <div class="photo p1" style="left:22px; top:22px; width:46%; height:60%;">
+            <img src="image19.jpg" alt="image19" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p2" style="right:22px; bottom:22px; width:50%; height:52%;">
+            <img src="image20.jpg" alt="image20" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <div class="copy"></div>
+      </section>
+
+      <!-- Slide 6 (3 photos) -->
+      <section class="slide" data-year="2024" data-title="More laughs, more love"
+        data-quote="&ldquo;You + me = my favorite place.&rdquo;"
+        data-dialogue="&lt;b&gt;You:&lt;/b&gt; Smile!  &nbsp; &lt;b&gt;Me:&lt;/b&gt; Only if you’re in the frame 😄">
+        <div class="collage">
+          <div class="photo p1" style="left:18px; top:18px; width:54%; height:54%;">
+            <img src="image21.jpg" alt="image21" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p2" style="right:18px; top:36px; width:40%; height:40%;">
+            <img src="image22.jpg" alt="image22" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p3" style="left:30px; bottom:20px; width:46%; height:40%;">
+            <img src="image23.jpg" alt="image23" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <div class="copy"></div>
+      </section>
+
+      <!-- Slide 7 (3 photos) -->
+      <section class="slide" data-year="2024" data-title="Tiny moments, big meaning"
+        data-quote="&ldquo;Love is the little things… done together.&rdquo;"
+        data-dialogue="&lt;b&gt;You:&lt;/b&gt; Another candid?  &nbsp; &lt;b&gt;Me:&lt;/b&gt; Candid is your best look 😍">
+        <div class="collage">
+          <div class="photo p1" style="left:18px; top:26px; width:44%; height:52%;">
+            <img src="image24.jpg" alt="image24" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p2" style="right:18px; top:18px; width:50%; height:40%;">
+            <img src="image25.jpg" alt="image25" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p3" style="right:30px; bottom:22px; width:42%; height:44%;">
+            <img src="image26.jpg" alt="image26" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <div class="copy"></div>
+      </section>
+
+      <!-- Slide 8 (3 photos) -->
+      <section class="slide" data-year="2025" data-title="New dreams"
+        data-quote="&ldquo;The best chapters are still ahead.&rdquo;"
+        data-dialogue="&lt;b&gt;You:&lt;/b&gt; What’s next?  &nbsp; &lt;b&gt;Me:&lt;/b&gt; Everything… with you ✨">
+        <div class="collage">
+          <div class="photo p1" style="left:18px; top:18px; width:50%; height:58%;">
+            <img src="image27.jpg" alt="image27" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p2" style="right:18px; top:44px; width:44%; height:40%;">
+            <img src="image28.jpg" alt="image28" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p3" style="left:40px; bottom:20px; width:54%; height:38%;">
+            <img src="image29.jpg" alt="image29" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <div class="copy"></div>
+      </section>
+
+      <!-- Slide 9 (3 photos) -->
+      <section class="slide" data-year="2025" data-title="Forever vibes"
+        data-quote="&ldquo;With you, even ordinary is magical.&rdquo;"
+        data-dialogue="&lt;b&gt;You:&lt;/b&gt; One last pose?  &nbsp; &lt;b&gt;Me:&lt;/b&gt; Only if I can hold you 🫶">
+        <div class="collage">
+          <div class="photo p1" style="left:22px; top:20px; width:52%; height:44%;">
+            <img src="image30.jpg" alt="image30" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p2" style="right:22px; top:22px; width:44%; height:54%;">
+            <img src="image31.jpg" alt="image31" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p3" style="left:26px; bottom:22px; width:58%; height:40%;">
+            <img src="image32.jpg" alt="image32" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <div class="copy"></div>
+      </section>
+
+      <!-- Slide 10 (3 photos) - removed "only the beginning" text -->
+      <section class="slide" data-year="❤️" data-title="Happy Birthday, my love"
+        data-quote="&ldquo;My favorite story is us.&rdquo;"
+        data-dialogue="">
+        <div class="collage">
+          <div class="photo p1" style="left:18px; top:18px; width:46%; height:56%;">
+            <img src="image33.jpg" alt="image33" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p2" style="right:18px; top:18px; width:46%; height:40%;">
+            <img src="image34.jpg" alt="image34" loading="lazy" decoding="async">
+          </div>
+          <div class="photo p3" style="right:26px; bottom:22px; width:54%; height:50%;">
+            <img src="image35.jpg" alt="image35" loading="lazy" decoding="async">
+          </div>
+        </div>
+        <div class="copy"></div>
+      </section>
+
+      <!-- FINAL SLIDE: 20-photo polaroid grid (4x5) -->
+      <section class="slide galleryWrap"
+               data-type="gallery"
+               data-year=""
+               data-title=""
+               data-quote=""
+               data-dialogue="">
+          <div class="polaroidGrid" id="polaroidGrid">
+            <!-- Use image1.jpg ... image20.jpg (rename your files OR update src here) -->
+            <div class="polaroid" style="--rot:-2deg"><div class="imgBox"><img src="image51.jpg"  alt=""></div><div class="caption"><span class="heartTag">💗</span></div></div>
+            <div class="polaroid" style="--rot: 2deg"><div class="imgBox"><img src="image52.jpg"  alt=""></div><div class="caption"><span class="heartTag">💛</span></div></div>
+            <div class="polaroid" style="--rot:-1deg"><div class="imgBox"><img src="image53.jpg"  alt=""></div><div class="caption"><span class="heartTag">💙</span></div></div>
+            <div class="polaroid" style="--rot: 1deg"><div class="imgBox"><img src="image54.jpg"  alt=""></div><div class="caption"><span class="heartTag">💜</span></div></div>
+            <div class="polaroid" style="--rot:-3deg"><div class="imgBox"><img src="image55.jpg"  alt=""></div><div class="caption"><span class="heartTag">💖</span></div></div>
+
+            <div class="polaroid" style="--rot: 3deg"><div class="imgBox"><img src="image56.jpg"  alt=""></div><div class="caption"><span class="heartTag">💘</span></div></div>
+            <div class="polaroid" style="--rot:-2deg"><div class="imgBox"><img src="image57.jpg"  alt=""></div><div class="caption"><span class="heartTag">💝</span></div></div>
+            <div class="polaroid" style="--rot: 2deg"><div class="imgBox"><img src="image58.jpg"  alt=""></div><div class="caption"><span class="heartTag">💞</span></div></div>
+            <div class="polaroid" style="--rot:-1deg"><div class="imgBox"><img src="image59.jpg"  alt=""></div><div class="caption"><span class="heartTag">💓</span></div></div>
+            <div class="polaroid" style="--rot: 1deg"><div class="imgBox"><img src="image60.jpg" alt=""></div><div class="caption"><span class="heartTag">💟</span></div></div>
+
+            <div class="polaroid" style="--rot:-2deg"><div class="imgBox"><img src="image61.jpg" alt=""></div><div class="caption"><span class="heartTag">💗</span></div></div>
+            <div class="polaroid" style="--rot: 2deg"><div class="imgBox"><img src="image62.jpg" alt=""></div><div class="caption"><span class="heartTag">💛</span></div></div>
+          </div>
+
+       <div class="galleryFooter">
+  <div></div>
+
+  <div class="footerCenter">
+    <span class="footerText">its only the beggining</span>
+    <span class="beatHeart">❤️</span>
+  </div>
+
+  <button class="nextBtn" id="goFinal">Next</button>
+</div>
+
+        <div style="display:none"></div>
+      </section>
+
+      <!-- Hidden HUD (kept for logic, but hidden by CSS) -->
+      <div class="hud">
+        <div class="btns">
+          <button id="prevBtn">◀ Prev</button>
+          <button id="pauseBtn">⏸ Pause</button>
+          <button id="nextBtn">Next ▶</button>
+        </div>
+        <div class="progress"><div class="bar" id="bar"></div></div>
+        <div class="counter" id="counter">1 / 10</div>
+      </div>
+
+      <!-- MUSIC -->
+      <audio id="bgMusic" loop preload="auto">
+        <source src="music.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const bar = document.getElementById("bar");
+    const counter = document.getElementById("counter");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+
+    const bgMusic = document.getElementById("bgMusic");
+    const audioGate = document.getElementById("audioGate");
+    const enableAudioBtn = document.getElementById("enableAudioBtn");
+
+    const SLIDE_MS = 6500;
+    let index = 0;
+    let timer = null;
+    let paused = false;
+
+    function fillCopy(slide){
+      const type = slide.dataset.type || "normal";
+      if(type === "intro" || type === "gallery") return;
+
+      const copy = slide.querySelector(".copy");
+      const year = slide.dataset.year || "";
+      const title = slide.dataset.title || "";
+      const quote = slide.dataset.quote || "";
+      const dialogue = slide.dataset.dialogue || "";
+
+      copy.innerHTML = `
+        <div class="year">${year}</div>
+        <div class="title">${title}</div>
+        <div class="quote">${quote}</div>
+        ${dialogue ? `<div class="dialogue">${dialogue}</div>` : ``}
+      `;
+    }
+    slides.forEach(fillCopy);
+
+    function markEntered(slide){ slide.classList.add("entered"); }
+    
+    // ✅ Lazy image loader: load images only when slide is needed
+function loadImagesIn(el){
+  if(!el) return;
+  el.querySelectorAll('img[data-src]').forEach(img => {
+    img.src = img.dataset.src;
+    img.removeAttribute('data-src');
+  });
+}
+
+// Load current slide + preload next slide images
+function loadForIndex(i){
+  loadImagesIn(slides[i]);                 // current
+  loadImagesIn(slides[i + 1]);             // preload next (optional but smooth)
+}
+
+    function setActive(i){
+      slides.forEach((s, n) => {
+        s.classList.toggle("active", n === i);
+        s.classList.remove("play","entered");
+        if(n === i){
+          void s.offsetWidth;
+          s.classList.add("play");
+          setTimeout(() => markEntered(s), 1200);
+        }
+      });
+
+       // ✅ ADD THIS (loads current + next slide images only)
+  loadForIndex(i);
+      
+      if(counter) counter.textContent = `${i+1} / ${slides.length}`;
+      if(bar) bar.style.width = `${((i+1)/slides.length) * 100}%`;
+    }
+
+    function next(){
+      index = Math.min(index + 1, slides.length - 1);
+      setActive(index);
+      restartTimer();
+      tryStartMusic();
+    }
+    function prev(){
+      index = Math.max(index - 1, 0);
+      setActive(index);
+      restartTimer();
+      tryStartMusic();
+    }
+
+    function restartTimer(){
+      if(paused) return;
+      if(timer) clearInterval(timer);
+
+      timer = setInterval(() => {
+        // stop autoplay on the FINAL slide (gallery)
+        const isLast = index === slides.length - 1;
+        if(isLast){
+          clearInterval(timer);
+          timer = null;
+          return;
+        }
+        next();
+      }, SLIDE_MS);
+    }
+
+    function togglePause(){
+      paused = !paused;
+      if(pauseBtn) pauseBtn.textContent = paused ? "▶ Play" : "⏸ Pause";
+      if(paused){
+        if(timer) clearInterval(timer);
+        timer = null;
+      } else {
+        restartTimer();
+      }
+    }
+
+    if(nextBtn) nextBtn.addEventListener("click", next);
+    if(prevBtn) prevBtn.addEventListener("click", prev);
+    if(pauseBtn) pauseBtn.addEventListener("click", togglePause);
+
+    window.addEventListener("keydown", (e) => {
+      if(e.key === "ArrowRight") next();
+      if(e.key === "ArrowLeft") prev();
+      if(e.key === " ") { e.preventDefault(); togglePause(); }
+    });
+
+    // Swipe (mobile)
+    let startX = 0;
+    const deck = document.getElementById("deck");
+    deck.addEventListener("touchstart", (e) => startX = e.touches[0].clientX, {passive:true});
+    deck.addEventListener("touchend", (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const dx = endX - startX;
+      if(Math.abs(dx) > 40){
+        dx < 0 ? next() : prev();
+      }
+    }, {passive:true});
+
+    // Music gating
+    function tryStartMusic(){
+      if(!bgMusic) return;
+      if(bgMusic.querySelectorAll("source").length === 0 && !bgMusic.src) return;
+
+      bgMusic.play().then(() => {
+        audioGate.classList.remove("show");
+      }).catch(() => {
+        audioGate.classList.add("show");
+      });
+    }
+    enableAudioBtn.addEventListener("click", () => {
+      audioGate.classList.remove("show");
+      tryStartMusic();
+    });
+    window.addEventListener("click", () => tryStartMusic(), { once:false });
+
+    // Snow generator
+    const snowLayer = document.getElementById("snowLayer");
+    const FLAKES = 60;
+    function rnd(min,max){ return Math.random()*(max-min)+min; }
+    for(let i=0;i<FLAKES;i++){
+      const f = document.createElement("div");
+      f.className = "flake";
+      const size = rnd(2.5, 6.5);
+      const left = rnd(0, 100);
+      const dur = rnd(6, 14);
+      const delay = rnd(-14, 0);
+      const drift = rnd(-40, 40);
+
+      f.style.width = size + "px";
+      f.style.height = size + "px";
+      f.style.left = left + "%";
+      f.style.opacity = rnd(.35,.95);
+      f.style.animationDuration = dur + "s";
+      f.style.animationDelay = delay + "s";
+      f.style.setProperty("--xStart", "0px");
+      f.style.setProperty("--xEnd", drift + "px");
+
+      snowLayer.appendChild(f);
+    }
+
+    // Random hearts under each polaroid
+    const hearts = ["💗","💖","💘","💝","💞","💓","💟","💛","💙","💜","❤️"];
+    document.querySelectorAll(".heartTag").forEach((el) => {
+      el.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    });
+
+    // Init
+    setActive(index);
+    restartTimer();
+    setTimeout(() => {
+      if(bgMusic && (bgMusic.querySelectorAll("source").length > 0 || bgMusic.src)){
+        audioGate.classList.add("show");
+      }
+    }, 600);
+
+// Redirect to final page
+document.getElementById("goFinal")?.addEventListener("click", () => {
+  window.location.href = "final.html";
+});
+
+  </script>
+</body>
+</html>
+
+
